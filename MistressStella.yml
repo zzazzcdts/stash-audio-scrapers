@@ -1,0 +1,55 @@
+name: Mistress Stella
+sceneByURL:
+  - action: scrapeXPath
+    url:
+      - mistressstella.com
+    scraper: sceneScraper
+
+sceneByName:
+  action: scrapeXPath
+  queryURL: https://www.mistressstella.com/?s={}&post_type=product
+  scraper: sceneScraper
+
+sceneByQueryFragment:
+  action: scrapeXPath
+  queryURL: "{url}"
+  scraper: sceneScraper
+
+xPathScrapers:
+  sceneScraper:
+    scene:
+      Title:
+        selector: //h1[@class="product_title entry-title"]/text()
+      Performers:
+        Name:
+          fixed: Mistress Stella
+      Tags:
+        Name: //span[@class="posted_in"]/a/text()
+      Details:
+        selector: //div[@class='woocommerce-product-details__short-description']//text()
+        concat: ' '
+        postProcess:
+          - replace:
+              - regex: '\s+([?.,!])'
+                with: $1
+      Image:
+        selector: //div[@class='woocommerce-product-gallery__image']/@data-thumb
+        postProcess:
+          - replace:
+              - regex: '-100x100\.'
+                with: '.'
+      URL:
+        selector: //link[@rel='canonical']/@href
+      Date:
+        selector: //div[@class='woocommerce-product-details__short-description']//audio[@class='wp-audio-shortcode']/source/@src
+        postProcess:
+          - replace:
+              - regex: ^https://www\.mistressstella\.com/wp-content/uploads/
+                with: ''
+              - regex: \/[^\/]+\.mp3\?_=\d+
+                with: ''
+              - regex: (\d{4})\/(\d{2})
+                with: '$1-$2-01'
+      Studio:
+        Name:
+          fixed: Mistress Stella

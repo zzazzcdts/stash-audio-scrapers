@@ -1,0 +1,95 @@
+name: HypnoDB
+
+sceneByName:
+  action: scrapeXPath
+  scraper: sceneSearch
+  queryURL: "https://hypnodb.com/search?s=1&sn={}"
+  
+sceneByURL:
+  - action: scrapeXPath
+    url:
+      - hypnodb.com
+    queryURL: "{url}"
+    scraper: sceneScraper
+  
+sceneByQueryFragment:
+  action: scrapeXPath
+  queryURL: "{url}"
+  scraper: sceneScraper
+  
+xPathScrapers:
+  sceneScraper:
+    scene:
+      Title: //h1[@class='page-title']/text()
+      Details: 
+        selector: //span[@id='pdc']//text()
+        concat: "\n\n"
+      Name:
+          selector: //h1[@class='page-title']/text()
+      Image:
+        selector: //img[contains(@class, 'd-block') and contains(@class, 'd-sm-none')]/@src
+        postProcess:
+          - replace:
+              - regex: ^//
+                with: https://
+      Tags:
+        Name:
+          selector: //div[@class='isect']//span[@class='badge badge-secondary']/text()
+          postProcess:
+          - replace:
+              - regex: \bH\b
+                with: humiliation
+              - regex: \bBW\b
+                with: brainwashing
+      Studio:
+        Name:
+          selector: //div[@class='container-fluid before-footer']/div[@class='container']/div[@style='margin-bottom:5px;']//b/text()
+      Performers:
+        Name: //div[@class='container-fluid before-footer']/div[@class='container']/div[@style='margin-bottom:5px;']//b/text()
+      URL:
+          selector: //title/text()
+          postProcess:
+          - replace:
+              - regex: ^([^|]+)\s*-\s*([^|]+)\s*\|\s*[^\s]+$
+                with: https://hypnodb.com/$2/$1
+              - regex: '\s+'
+                with: '-'
+              - regex: '-/'
+                with: '/'
+      Date:
+          selector: //div[@class='isect']/span[@class='small-text' and contains(text(),'Release:')]/following-sibling::text()[1]
+          postProcess:
+          - replace:
+            - regex: '^'
+              with: '01 '
+            - regex: '\bJan\b'
+              with: '01'
+            - regex: '\bFeb\b'
+              with: '02'
+            - regex: '\bMar\b'
+              with: '03'
+            - regex: '\bApr\b'
+              with: '04'
+            - regex: '\bMay\b'
+              with: '05'
+            - regex: '\bJun\b'
+              with: '06'
+            - regex: '\bJul\b'
+              with: '07'
+            - regex: '\bAug\b'
+              with: '08'
+            - regex: '\bSep\b'
+              with: '09'
+            - regex: '\bOct\b'
+              with: '10'
+            - regex: '\bNov\b'
+              with: '11'
+            - regex: '\bDec\b'
+              with: '12'
+            - regex: '(\d{2})\s(\d{2})\s(\d{4})'
+              with: '$3-$2-$1'
+  sceneSearch:
+    scene:
+      Title: //table[@id='mDT']//tbody//a[@title]/@title
+      URL: //table[@id='mDT']//tbody//a[@title]/@href
+      Image: //table[@id='mDT']//tbody//a[@title]/img/@lsrc
